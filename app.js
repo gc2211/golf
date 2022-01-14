@@ -51,39 +51,46 @@ app.get('/users/:id', (req, res) => {
 // Create user
 
  app.post('/users', (req, res) => {
- const { firstname, lastname, age } = req.body;
+ const { firstname, lastname, age ,country ,city , province} = req.body;
 
  const { error: validationErrors } = Joi.object({
   firstname: Joi.string().max(255).required(),
   lastname: Joi.string().max(255).required(),
   age: Joi.number().min(1).required(),
- }).validate({ firstname, lastname, age }, { abortEarly: false });
+  country: Joi.string().max(255).required(),
+  city: Joi.string().max(255).required(),
+  province: Joi.string().max(255).required(),
+ }).validate({ firstname, lastname, age ,country ,city , province}, { abortEarly: false });
 
  if (validationErrors) {
    res.status(422).json({ errors: validationErrors.details });
  } else {
    connection.promise()
-    .query('INSERT INTO track (firstname, lastname, age) VALUES (?, ?, ?)', [firstname, lastname, age])
+    .query('INSERT INTO users (firstname, lastname, age,country ,city , province) VALUES (?, ?, ?,?,?,?)', [firstname, lastname, age,country ,city , province])
      .then(([result]) => {
-      const createdUser = { id: result.insertId, firstname, lastname, age };
+      const createdUser = { id: result.insertId, firstname, lastname, age ,country ,city , province};
        res.status(201).json(createdUser);
      }).catch((err) => { console.error(err); res.sendStatus(500); });
  }
 });
 
 //Update user by id
-app.put('/users/:id', (req, res) => {
+app.patch('/users/:id', (req, res) => {
  const { error: validationErrors } = Joi.object({
   firstname: Joi.string().max(255).required(),
   lastname: Joi.string().max(255).required(),
   age: Joi.number().min(1).required(),
+  country: Joi.string().max(255).required(),
+  city: Joi.string().max(255).required(),
+  province: Joi.string().max(255).required(),
+
  }).validate(req.body, { abortEarly: false });
 
  if (validationErrors)
    return res.status(422).json({ errors: validationErrors.details });
 
  connection.promise()
-   .query('UPDATE user SET ? WHERE id = ?', [req.body, req.params.id])
+   .query('UPDATE users SET ? WHERE id = ?', [req.body, req.params.id])
    .then(([result]) => {
      res.sendStatus(200);
    })
